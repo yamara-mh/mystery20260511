@@ -1,0 +1,97 @@
+.container {
+  position: absolute;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.titleBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, rgba(80, 20, 20, 0.95) 0%, rgba(120, 30, 30, 0.9) 100%);
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.titleText {
+  font-weight: bold;
+}
+
+.counter {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.navBar {
+  position: absolute;
+  bottom: 30%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  pointer-events: auto;
+}
+
+.navBtn {
+  background: rgba(40, 40, 60, 0.9);
+  color: #aaccff;
+  border: 2px solid rgba(100, 160, 255, 0.4);
+  border-radius: 6px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: rgba(50, 50, 80, 0.95);
+  border-color: rgba(130, 190, 255, 0.7);
+}
+
+.navBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pressBtn {
+  background: linear-gradient(180deg, rgba(20, 80, 40, 0.95) 0%, rgba(15, 60, 30, 0.98) 100%);
+  color: #80ff80;
+  border: 2px solid rgba(80, 255, 120, 0.5);
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.pressBtn:hover {
+  background: linear-gradient(180deg, rgba(30, 100, 50, 0.95) 0%, rgba(25, 80, 40, 0.98) 100%);
+  border-color: rgba(120, 255, 160, 0.8);
+  transform: scale(1.05);
+}
+
+.presentBtn {
+  background: linear-gradient(180deg, rgba(80, 40, 20, 0.95) 0%, rgba(60, 30, 15, 0.98) 100%);
+  color: #ffc040;
+  border: 2px solid rgba(255, 180, 60, 0.5);
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.presentBtn:hover {
+  background: linear-gradient(180deg, rgba(100, 50, 25, 0.95) 0%, rgba(80, 40, 20, 0.98) 100%);
+  border-color: rgba(255, 200, 80, 0.8);
+  transform: scale(1.05);
+}

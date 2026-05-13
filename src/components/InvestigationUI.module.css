@@ -1,0 +1,145 @@
+.container {
+  position: absolute;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.menuBar {
+  position: absolute;
+  bottom: 32%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  pointer-events: auto;
+  flex-wrap: wrap;
+}
+
+.menuBtn {
+  background: linear-gradient(180deg, rgba(20, 60, 40, 0.95) 0%, rgba(10, 40, 30, 0.98) 100%);
+  color: #a0ffa0;
+  border: 2px solid rgba(100, 255, 140, 0.5);
+  border-radius: 8px;
+  padding: 10px 22px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.menuBtn:hover {
+  background: linear-gradient(180deg, rgba(30, 80, 50, 0.95) 0%, rgba(20, 60, 40, 0.98) 100%);
+  border-color: rgba(140, 255, 180, 0.8);
+  transform: scale(1.05);
+}
+
+.examineArea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.cursor {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  margin-left: -16px;
+  margin-top: -16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.cursor::before,
+.cursor::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+}
+
+.cursor::before {
+  width: 2px;
+  height: 12px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cursor::after {
+  width: 12px;
+  height: 2px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.examResult {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  pointer-events: none;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.backBtn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(60, 60, 60, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.deduceBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: linear-gradient(180deg, rgba(80, 40, 20, 0.95) 0%, rgba(60, 30, 15, 0.98) 100%);
+  color: #ffd080;
+  border: 2px solid rgba(255, 180, 80, 0.6);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.subMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(10, 20, 40, 0.95);
+  border: 2px solid rgba(100, 160, 255, 0.5);
+  border-radius: 10px;
+  pointer-events: auto;
+  min-width: 250px;
+}
+
+.subTitle {
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  font-family: 'Noto Sans JP', sans-serif;
+  margin-bottom: 8px;
+}
