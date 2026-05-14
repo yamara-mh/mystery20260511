@@ -57,6 +57,7 @@ const ja = {
 
   // Save/Load
   save_slot: 'スロット {{num}}',
+  save_auto: 'オートセーブ',
   save_empty: '--- 空き ---',
   save_overwrite: '上書きしますか？',
   save_success: 'セーブしました',

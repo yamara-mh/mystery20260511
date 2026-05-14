@@ -39,6 +39,8 @@ export default function TextBox({ layout }: TextBoxProps) {
     return () => clearTimeout(timerRef.current);
   }, [textBox.visible, textBox.isComplete, textBox.displayedChars, textBox.text, charDelay, setTextBox]);
 
+  const autoSave = useSaveStore((s) => s.autoSave);
+
   const handleClick = useCallback(() => {
     if (!textBox.visible) return;
     if (!textBox.isComplete) {
@@ -46,8 +48,9 @@ export default function TextBox({ layout }: TextBoxProps) {
       setTextBox({ displayedChars: textBox.text.length, isComplete: true });
       return;
     }
+    autoSave();
     engine.advanceAndContinue();
-  }, [textBox.visible, textBox.isComplete, textBox.text.length, setTextBox]);
+  }, [textBox.visible, textBox.isComplete, textBox.text.length, setTextBox, autoSave]);
 
   if (!textBox.visible || phase === 'choice' || phase === 'move' || phase === 'scene_change') {
     return null;
@@ -55,15 +58,27 @@ export default function TextBox({ layout }: TextBoxProps) {
 
   const displayText = textBox.text.slice(0, textBox.displayedChars);
 
-  return (
-    <div
-      className={`${styles.textBoxContainer} ${textBox.isThinking ? styles.thinking : ''}`}
-      style={{
+  const isPortrait = layout.orientation === 'portrait';
+  const containerStyle: React.CSSProperties = isPortrait
+    ? {
+        left: 0,
+        top: layout.offsetY + layout.height,
+        width: '100vw',
+        height: layout.uiBottomHeight,
+      }
+    : {
         left: layout.offsetX,
         top: layout.offsetY + layout.height - layout.height * 0.3,
         width: layout.width,
         height: layout.height * 0.28,
-      }}
+      };
+
+  const fontScale = isPortrait ? Math.max(layout.scale, 0.7) : layout.scale;
+
+  return (
+    <div
+      className={`${styles.textBoxContainer} ${textBox.isThinking ? styles.thinking : ''}`}
+      style={containerStyle}
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -72,20 +87,20 @@ export default function TextBox({ layout }: TextBoxProps) {
       {textBox.speaker && (
         <div
           className={styles.speakerName}
-          style={{ fontSize: layout.scale * 20 }}
+          style={{ fontSize: fontScale * 20 }}
         >
           {textBox.speaker}
         </div>
       )}
       <div
         className={styles.textContent}
-        style={{ fontSize: layout.scale * 24 }}
+        style={{ fontSize: fontScale * 24 }}
       >
         {displayText}
         {!textBox.isComplete && <span className={styles.cursor}>|</span>}
       </div>
       {textBox.isComplete && (
-        <div className={styles.advanceIndicator} style={{ fontSize: layout.scale * 16 }}>
+        <div className={styles.advanceIndicator} style={{ fontSize: fontScale * 16 }}>
           ▼
         </div>
       )}

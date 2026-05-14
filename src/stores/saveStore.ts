@@ -5,6 +5,7 @@ import { useGameStore } from './gameStore';
 const SAVE_KEY = 'ace_attorney_adventure_saves';
 const SETTINGS_KEY = 'ace_attorney_adventure_settings';
 const MAX_SLOTS = 10;
+const AUTO_SAVE_SLOT = 0;
 
 export interface Settings {
   bgmVolume: number;
@@ -22,9 +23,11 @@ interface SaveStore {
   playTimerRef: number | null;
 
   loadSaves: () => void;
-  saveGame: (slot: number) => void;
+  saveGame: (slot: number, isAutoSave?: boolean) => void;
+  autoSave: () => void;
   loadGame: (slot: number) => SaveData | null;
   deleteSave: (slot: number) => void;
+  hasSaveData: () => boolean;
 
   updateSettings: (settings: Partial<Settings>) => void;
   loadSettings: () => void;
@@ -64,7 +67,7 @@ export const useSaveStore = create<SaveStore>((set, get) => ({
     }
   },
 
-  saveGame: (slot: number) => {
+  saveGame: (slot: number, isAutoSave = false) => {
     const gameStore = useGameStore.getState();
     const saves = [...get().saves];
     const saveData: SaveData = {
@@ -79,6 +82,9 @@ export const useSaveStore = create<SaveStore>((set, get) => ({
       info: [...gameStore.info],
       penaltyHP: gameStore.penaltyHP,
       playTime: get().playTime,
+      background: gameStore.display.background,
+      characters: gameStore.display.characters.map((c) => ({ ...c })),
+      isAutoSave,
     };
     saves[slot] = saveData;
     set({ saves });
@@ -89,22 +95,58 @@ export const useSaveStore = create<SaveStore>((set, get) => ({
     }
   },
 
+  autoSave: () => {
+    const gameStore = useGameStore.getState();
+    if (gameStore.phase === 'title') return;
+    get().saveGame(AUTO_SAVE_SLOT, true);
+  },
+
   loadGame: (slot: number) => {
     const saves = get().saves;
     const saveData = saves[slot];
     if (!saveData) return null;
 
     const gameStore = useGameStore.getState();
+
+    // Reset display state first
+    gameStore.clearCharacters();
+    gameStore.clearTextBox();
+    gameStore.clearEffects();
+
+    // Restore core state
+    gameStore.setChapter(saveData.chapter);
+    gameStore.setScript(saveData.scriptId, saveData.commandIndex);
+
+    // Reset and restore flags
+    gameStore.resetGame();
     gameStore.setChapter(saveData.chapter);
     gameStore.setScript(saveData.scriptId, saveData.commandIndex);
     Object.entries(saveData.flags).forEach(([k, v]) => gameStore.setFlag(k, v));
+
+    // Reset and re-add inventory items
     saveData.evidence.forEach((e) => gameStore.addEvidence(e));
     saveData.persons.forEach((p) => gameStore.addPerson(p));
     saveData.info.forEach((i) => gameStore.addInfo(i));
     gameStore.setPenalty(saveData.penaltyHP);
+
+    // Restore display state
+    if (saveData.background) {
+      gameStore.setBackground(saveData.background);
+    }
+    if (saveData.characters) {
+      saveData.characters.forEach((c) => gameStore.showCharacter(c));
+    }
+
+    // Set phase to dialogue so the engine can resume
+    gameStore.setPhase('dialogue');
+
     set({ playTime: saveData.playTime });
 
     return saveData;
+  },
+
+  hasSaveData: () => {
+    return get().saves.some((s) => s !== null);
   },
 
   deleteSave: (slot: number) => {

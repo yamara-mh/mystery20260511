@@ -537,6 +537,12 @@ export interface SaveData {
   penaltyHP: number;
   screenshot?: string;
   playTime: number;
+  /** Display state: background image data URL */
+  background?: string;
+  /** Display state: characters on screen */
+  characters?: CharacterOnScreen[];
+  /** Whether this save was auto-generated */
+  isAutoSave?: boolean;
 }
 
 // ── Rendering state ──

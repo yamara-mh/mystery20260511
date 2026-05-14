@@ -64,13 +64,6 @@ export default function InvestigationUI({ layout }: InvestigationUIProps) {
     setTimeout(() => setExamResult(null), 1500);
   }, [cursorPos, investigation.hotspots, t]);
 
-  const handleExit = useCallback(() => {
-    const exitLabel = investigation.exitLabel;
-    useGameStore.getState().clearInvestigation();
-    engine.jumpToLabel(exitLabel);
-    engine.advanceAndContinue();
-  }, [investigation.exitLabel]);
-
   const handleDeduce = useCallback(() => {
     toggleInventory(true);
   }, [toggleInventory]);
@@ -104,7 +97,11 @@ export default function InvestigationUI({ layout }: InvestigationUIProps) {
               {t('investigate_present')}
             </button>
           )}
-          <button className={styles.menuBtn} onClick={handleExit}>
+          <button className={styles.menuBtn} onClick={() => {
+            useGameStore.getState().clearInvestigation();
+            engine.jumpToLabel(investigation.exitLabel);
+            engine.advanceAndContinue();
+          }}>
             {t('investigate_move')}
           </button>
           <button className={styles.menuBtn} onClick={() => setMode('organize')}>

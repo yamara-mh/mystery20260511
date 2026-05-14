@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../stores/gameStore';
 import { useSaveStore } from '../stores/saveStore';
 import { engine } from '../engine/ScenarioEngine';
+import { loadChapter1 } from '../data/scenario/chapter1';
 import type { LayoutInfo } from '../utils/responsive';
 import styles from './MenuScreen.module.css';
 
@@ -16,7 +17,6 @@ export default function MenuScreen({ layout }: MenuScreenProps) {
   const { t } = useTranslation();
   const menuOpen = useGameStore((s) => s.menuOpen);
   const toggleMenu = useGameStore((s) => s.toggleMenu);
-  const chapterData = useGameStore((s) => s.chapterData);
   const [view, setView] = useState<MenuView>('main');
   const saves = useSaveStore((s) => s.saves);
   const settings = useSaveStore((s) => s.settings);
@@ -41,13 +41,16 @@ export default function MenuScreen({ layout }: MenuScreenProps) {
 
   const handleLoad = useCallback(
     (slot: number) => {
+      engine.stop();
+      const chapterData = loadChapter1();
+      engine.loadChapter(chapterData);
       const data = loadGame(slot);
-      if (data && chapterData) {
-        engine.startScript(data.scriptId).catch(console.error);
+      if (data) {
+        engine.resumeFromCommandIndex(data.scriptId, data.commandIndex).catch(console.error);
         handleClose();
       }
     },
-    [loadGame, chapterData, handleClose]
+    [loadGame, handleClose]
   );
 
   const handleTitleScreen = useCallback(() => {
@@ -62,10 +65,10 @@ export default function MenuScreen({ layout }: MenuScreenProps) {
     <div
       className={styles.overlay}
       style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100dvh',
       }}
     >
       <div className={styles.panel} style={{ fontSize: layout.scale * 16 }}>
@@ -109,7 +112,9 @@ export default function MenuScreen({ layout }: MenuScreenProps) {
                   onClick={() => (view === 'save' ? handleSave(i) : save && handleLoad(i))}
                   disabled={view === 'load' && !save}
                 >
-                  <span className={styles.slotLabel}>{t('save_slot', { num: i + 1 })}</span>
+                  <span className={styles.slotLabel}>
+                    {i === 0 ? t('save_auto') : t('save_slot', { num: i + 1 })}
+                  </span>
                   {save ? (
                     <span className={styles.slotInfo}>
                       {new Date(save.timestamp).toLocaleString('ja-JP')}

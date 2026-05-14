@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../stores/gameStore';
 import { useSaveStore } from '../stores/saveStore';
@@ -15,6 +15,9 @@ export default function TitleScreen({ layout }: TitleScreenProps) {
   const { t } = useTranslation();
   const phase = useGameStore((s) => s.phase);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [showLoadSlots, setShowLoadSlots] = useState(false);
+  const saves = useSaveStore((s) => s.saves);
+  const hasSaves = saves.some((s) => s !== null);
 
   // Animated background
   useEffect(() => {
@@ -77,20 +80,34 @@ export default function TitleScreen({ layout }: TitleScreenProps) {
   }, []);
 
   const handleContinue = useCallback(() => {
-    useSaveStore.getState().loadSaves();
-    useGameStore.getState().toggleMenu(true);
+    if (!hasSaves) return;
+    setShowLoadSlots(true);
+  }, [hasSaves]);
+
+  const handleLoadSlot = useCallback((slot: number) => {
+    const chapterData = loadChapter1();
+    engine.loadChapter(chapterData);
+    const saveData = useSaveStore.getState().loadGame(slot);
+    if (saveData) {
+      useSaveStore.getState().startPlayTimer();
+      engine.resumeFromCommandIndex(saveData.scriptId, saveData.commandIndex).catch(console.error);
+    }
+    setShowLoadSlots(false);
   }, []);
 
   if (phase !== 'title') return null;
+
+  const isPortrait = layout.orientation === 'portrait';
+  const fontScale = isPortrait ? Math.max(layout.scale, 0.7) : layout.scale;
 
   return (
     <div
       className={styles.container}
       style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100dvh',
       }}
     >
       <canvas
@@ -100,28 +117,66 @@ export default function TitleScreen({ layout }: TitleScreenProps) {
         className={styles.bgCanvas}
       />
       <div className={styles.content}>
-        <h1 className={styles.title} style={{ fontSize: layout.scale * 48 }}>
+        <h1 className={styles.title} style={{ fontSize: fontScale * 48 }}>
           {t('title_game')}
         </h1>
-        <p className={styles.subtitle} style={{ fontSize: layout.scale * 20 }}>
+        <p className={styles.subtitle} style={{ fontSize: fontScale * 20 }}>
           {t('title_subtitle')}
         </p>
-        <div className={styles.buttons}>
-          <button
-            className={styles.startBtn}
-            style={{ fontSize: layout.scale * 22 }}
-            onClick={handleNewGame}
-          >
-            {t('title_new_game')}
-          </button>
-          <button
-            className={styles.continueBtn}
-            style={{ fontSize: layout.scale * 22 }}
-            onClick={handleContinue}
-          >
-            {t('title_continue')}
-          </button>
-        </div>
+        {!showLoadSlots ? (
+          <div className={styles.buttons}>
+            <button
+              className={styles.startBtn}
+              style={{ fontSize: fontScale * 22 }}
+              onClick={handleNewGame}
+            >
+              {t('title_new_game')}
+            </button>
+            <button
+              className={`${styles.continueBtn} ${!hasSaves ? styles.disabled : ''}`}
+              style={{ fontSize: fontScale * 22 }}
+              onClick={handleContinue}
+              disabled={!hasSaves}
+            >
+              {t('title_continue')}
+            </button>
+          </div>
+        ) : (
+          <div className={styles.loadSlots}>
+            <h2 style={{ color: '#aaccff', fontSize: fontScale * 22, marginBottom: 10 }}>
+              {t('menu_load')}
+            </h2>
+            <div className={styles.slotList}>
+              {saves.map((save, i) => (
+                <button
+                  key={i}
+                  className={styles.slotItem}
+                  style={{ fontSize: fontScale * 16 }}
+                  onClick={() => save && handleLoadSlot(i)}
+                  disabled={!save}
+                >
+                  <span className={styles.slotLabel}>
+                    {i === 0 ? t('save_auto') : t('save_slot', { num: i + 1 })}
+                  </span>
+                  {save ? (
+                    <span className={styles.slotInfo}>
+                      {new Date(save.timestamp).toLocaleString('ja-JP')}
+                    </span>
+                  ) : (
+                    <span className={styles.slotEmpty}>{t('save_empty')}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <button
+              className={styles.continueBtn}
+              style={{ fontSize: fontScale * 18, marginTop: 10 }}
+              onClick={() => setShowLoadSlots(false)}
+            >
+              {t('ui_back')}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ export interface LayoutInfo {
   width: number;
   height: number;
   orientation: 'landscape' | 'portrait';
+  /** In portrait, the total container height available for UI below the canvas */
+  uiBottomHeight: number;
 }
 
 export function calculateLayout(
@@ -33,10 +35,12 @@ export function calculateLayout(
       height = width / ASPECT_RATIO;
     }
   } else {
+    // Portrait: use full width, game canvas fills the upper portion
     width = containerWidth;
     height = width / ASPECT_RATIO;
-    if (height > containerHeight * 0.6) {
-      height = containerHeight * 0.6;
+    // Cap canvas to 50% of container to leave room for text/UI below
+    if (height > containerHeight * 0.5) {
+      height = containerHeight * 0.5;
       width = height * ASPECT_RATIO;
     }
   }
@@ -47,5 +51,9 @@ export function calculateLayout(
     ? (containerHeight - height) / 2
     : 0;
 
-  return { scale, offsetX, offsetY, width, height, orientation };
+  const uiBottomHeight = orientation === 'portrait'
+    ? containerHeight - (offsetY + height)
+    : 0;
+
+  return { scale, offsetX, offsetY, width, height, orientation, uiBottomHeight };
 }
