@@ -57,10 +57,10 @@ export default function InventoryScreen({ layout }: InventoryScreenProps) {
     <div
       className={styles.overlay}
       style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100dvh',
       }}
     >
       <div className={styles.panel} style={{ fontSize: layout.scale * 16 }}>

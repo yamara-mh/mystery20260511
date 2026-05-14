@@ -7,6 +7,7 @@ export class ScenarioEngine {
   private handlers: Map<string, CommandHandler> = new Map();
   private running = false;
   private waitingForInput = false;
+  private skipAdvance = false;
   private resolveInput: (() => void) | null = null;
   private chapterData: ChapterData | null = null;
 
@@ -43,6 +44,22 @@ export class ScenarioEngine {
 
     store.setScript(scriptId, startIndex);
     store.setChapter(this.chapterData.id);
+    this.running = true;
+    await this.executeLoop();
+  }
+
+  /** Resume execution from a saved command index (for load game) */
+  async resumeFromCommandIndex(scriptId: string, commandIndex: number) {
+    if (!this.chapterData) return;
+
+    const commands = this.chapterData.scripts[scriptId];
+    if (!commands) {
+      console.error(`Script not found: ${scriptId}`);
+      return;
+    }
+
+    const store = this.getStore();
+    store.setScript(scriptId, commandIndex);
     this.running = true;
     await this.executeLoop();
   }
@@ -84,6 +101,7 @@ export class ScenarioEngine {
 
       const cmd = commands[store.commandIndex];
       const handler = this.handlers.get(cmd.cmd);
+      this.skipAdvance = false;
 
       if (handler) {
         await handler(cmd);
@@ -100,8 +118,15 @@ export class ScenarioEngine {
         continue;
       }
 
-      this.getStore().advanceCommand();
+      if (!this.skipAdvance) {
+        this.getStore().advanceCommand();
+      }
     }
+  }
+
+  /** Mark that the current command already set the commandIndex (e.g. jump/flag_check) */
+  private markSkipAdvance() {
+    this.skipAdvance = true;
   }
 
   waitForInput() {
@@ -208,6 +233,7 @@ export class ScenarioEngine {
     this.registerHandler('jump', (rawCmd) => {
       const cmd = rawCmd as Extract<ScenarioCommand, { cmd: 'jump' }>;
       this.jumpToLabel(cmd.label);
+      this.markSkipAdvance();
     });
 
     this.registerHandler('flag_set', (rawCmd) => {
@@ -237,6 +263,7 @@ export class ScenarioEngine {
 
       const targetLabel = result ? cmd.trueLabel : cmd.falseLabel;
       this.jumpToLabel(targetLabel);
+      this.markSkipAdvance();
     });
 
     this.registerHandler('evidence_add', (rawCmd) => {
@@ -493,6 +520,7 @@ export class ScenarioEngine {
       const store = this.getStore();
       store.pushCallStack(store.scriptId, store.commandIndex + 1);
       this.startScript(cmd.scriptId, cmd.label);
+      this.markSkipAdvance();
     });
 
     this.registerHandler('return', () => {
@@ -500,6 +528,7 @@ export class ScenarioEngine {
       const frame = store.popCallStack();
       if (frame) {
         store.setScript(frame.scriptId, frame.commandIndex);
+        this.markSkipAdvance();
       }
     });
 

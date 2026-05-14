@@ -22,6 +22,7 @@ export default function App() {
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
     orientation: 'landscape',
+    uiBottomHeight: 0,
   });
 
   const handleLayoutChange = useCallback((newLayout: LayoutInfo) => {

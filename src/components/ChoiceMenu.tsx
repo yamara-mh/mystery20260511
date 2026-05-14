@@ -21,22 +21,23 @@ export default function ChoiceMenu({ layout }: ChoiceMenuProps) {
 
   if (phase !== 'choice' || choiceOptions.length === 0) return null;
 
+  const isPortrait = layout.orientation === 'portrait';
+  const overlayStyle: React.CSSProperties = isPortrait
+    ? { left: 0, top: layout.offsetY + layout.height, width: '100vw', height: layout.uiBottomHeight }
+    : { left: layout.offsetX, top: layout.offsetY, width: layout.width, height: layout.height };
+  const fontScale = isPortrait ? Math.max(layout.scale, 0.7) : layout.scale;
+
   return (
     <div
       className={styles.overlay}
-      style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
-      }}
+      style={overlayStyle}
     >
-      <div className={styles.choiceContainer}>
+      <div className={styles.choiceContainer} style={isPortrait ? { maxWidth: '95%' } : undefined}>
         {choiceOptions.map((opt, i) => (
           <button
             key={i}
             className={styles.choiceButton}
-            style={{ fontSize: layout.scale * 20 }}
+            style={{ fontSize: fontScale * 20, minWidth: isPortrait ? 0 : 300 }}
             onClick={() => handleChoice(opt.next)}
           >
             {opt.text}

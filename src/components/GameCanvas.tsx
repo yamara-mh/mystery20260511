@@ -10,7 +10,7 @@ export default function GameCanvas({ onLayoutChange }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<LayoutInfo>({
-    scale: 1, offsetX: 0, offsetY: 0, width: GAME_WIDTH, height: GAME_HEIGHT, orientation: 'landscape',
+    scale: 1, offsetX: 0, offsetY: 0, width: GAME_WIDTH, height: GAME_HEIGHT, orientation: 'landscape', uiBottomHeight: 0,
   });
   const animFrameRef = useRef(0);
 

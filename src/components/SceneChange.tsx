@@ -19,15 +19,17 @@ export default function SceneChange({ layout }: SceneChangeProps) {
   if (phase !== 'scene_change') return null;
 
   const lines = textBox.text.split('\n');
+  const isPortrait = layout.orientation === 'portrait';
+  const fontScale = isPortrait ? Math.max(layout.scale, 0.7) : layout.scale;
 
   return (
     <div
       className={styles.container}
       style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
+        left: 0,
+        top: 0,
+        width: '100vw',
+        height: '100dvh',
       }}
       onClick={handleClick}
       role="button"
@@ -39,7 +41,7 @@ export default function SceneChange({ layout }: SceneChangeProps) {
           <div
             key={i}
             className={i === 0 ? styles.mainText : styles.subText}
-            style={{ fontSize: layout.scale * (i === 0 ? 36 : 22) }}
+            style={{ fontSize: fontScale * (i === 0 ? 36 : 22) }}
           >
             {line}
           </div>

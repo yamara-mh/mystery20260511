@@ -26,21 +26,22 @@ export default function MoveMenu({ layout }: MoveMenuProps) {
 
   if (phase !== 'move' || destinations.length === 0) return null;
 
+  const isPortrait = layout.orientation === 'portrait';
+  const overlayStyle: React.CSSProperties = isPortrait
+    ? { left: 0, top: layout.offsetY + layout.height, width: '100vw', height: layout.uiBottomHeight }
+    : { left: layout.offsetX, top: layout.offsetY, width: layout.width, height: layout.height };
+  const fontScale = isPortrait ? Math.max(layout.scale, 0.7) : layout.scale;
+
   return (
     <div
       className={styles.overlay}
-      style={{
-        left: layout.offsetX,
-        top: layout.offsetY,
-        width: layout.width,
-        height: layout.height,
-      }}
+      style={overlayStyle}
     >
-      <div className={styles.choiceContainer}>
+      <div className={styles.choiceContainer} style={isPortrait ? { maxWidth: '95%' } : undefined}>
         <div
           style={{
             color: '#aaccff',
-            fontSize: layout.scale * 20,
+            fontSize: fontScale * 20,
             textAlign: 'center',
             marginBottom: 8,
             fontFamily: "'Noto Sans JP', sans-serif",
@@ -52,7 +53,7 @@ export default function MoveMenu({ layout }: MoveMenuProps) {
           <button
             key={i}
             className={styles.choiceButton}
-            style={{ fontSize: layout.scale * 20 }}
+            style={{ fontSize: fontScale * 20, minWidth: isPortrait ? 0 : 300 }}
             onClick={() => handleMove(dest.label)}
           >
             {dest.name}
